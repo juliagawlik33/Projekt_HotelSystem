@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using HotelSystem.Models;
 
 namespace HotelSystem.Areas.Identity.Data;
 
@@ -12,7 +13,12 @@ public class DbContext : IdentityDbContext<User>
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    public DbSet<RoomType> RoomTypes { get; set; }
+	public DbSet<Room> Rooms { get; set; }
+	public DbSet<Reservation> Reservations { get; set; }
+	public DbSet<User> Users { get; set; }
+
+	protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         // Customize the ASP.NET Identity model and override the defaults if needed.
