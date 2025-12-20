@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HotelSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,13 +30,10 @@ namespace HotelSystem.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -205,7 +202,7 @@ namespace HotelSystem.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -214,8 +211,7 @@ namespace HotelSystem.Migrations
                         name: "FK_Reservations_AspNetUsers_UserId1",
                         column: x => x.UserId1,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Reservations_Rooms_RoomId",
                         column: x => x.RoomId,

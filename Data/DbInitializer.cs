@@ -1,11 +1,11 @@
 ﻿using HotelSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelSystem.Areas.Identity.Data
+namespace HotelSystem.Data
 {
     public class DbInitializer
     {
-		public static void Initialize(DbContext context)
+		public static void Initialize(ApplicationDbContext context)
 		{
 			context.Database.Migrate();
 
@@ -44,25 +44,6 @@ namespace HotelSystem.Areas.Identity.Data
 				new Room { Number = "201", RoomTypeId = suite.Id }
 			);
 
-			// ===== USERS (Guest + Admin) =====
-			context.Users.AddRange(
-				new User
-				{
-					Username = "admin",
-					Password = "admin",
-					Name = "Administrator",
-					Email = "admin@hotel.local",
-					IsAdmin = true
-				},
-				new User
-				{
-					Username = "user",
-					Password = "user",
-					Name = "Jan Kowalski",
-					Email = "user@hotel.local",
-					IsAdmin = false
-				}
-			);
 
 			context.SaveChanges();
 		}

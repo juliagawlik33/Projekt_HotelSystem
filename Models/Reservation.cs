@@ -1,6 +1,4 @@
-﻿using HotelSystem.Areas.Identity.Data;
-
-namespace HotelSystem.Models
+﻿namespace HotelSystem.Models
 {
     public class Reservation
     {

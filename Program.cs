@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using HotelSystem.Areas.Identity.Data;
-using DbContext = HotelSystem.Areas.Identity.Data.DbContext;
+using ApplicationDbContext = HotelSystem.Data.ApplicationDbContext;
+using HotelSystem.Models;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DbContextConnection") ?? throw new InvalidOperationException("Connection string 'DbContextConnection' not found.");;
 
-builder.Services.AddDbContext<DbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<DbContext>();
+builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

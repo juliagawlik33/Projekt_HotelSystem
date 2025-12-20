@@ -1,14 +1,13 @@
-﻿using HotelSystem.Areas.Identity.Data;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using HotelSystem.Models;
 
-namespace HotelSystem.Areas.Identity.Data;
+namespace HotelSystem.Data;
 
-public class DbContext : IdentityDbContext<User>
+public class ApplicationDbContext : IdentityDbContext<User>
 {
-    public DbContext(DbContextOptions<DbContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
