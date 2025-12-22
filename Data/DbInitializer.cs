@@ -1,51 +1,80 @@
 ﻿using HotelSystem.Models;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace HotelSystem.Data
 {
-    public class DbInitializer
+    public static class DbInitializer
     {
-		public static void Initialize(ApplicationDbContext context)
-		{
-			context.Database.Migrate();
+        public static async Task InitializeAsync(
+            ApplicationDbContext context,
+            UserManager<User> userManager)
+        {
+            context.Database.EnsureCreated();
 
-			// jeśli są pokoje to seed już był
-			if (context.Rooms.Any()) return;
+            if (!context.RoomTypes.Any())
+            {
+                var single = new RoomType
+                {
+                    Name = "Single",
+                    Beds = 1,
+                    PricePerNight = 150
+                };
 
-			// ===== ROOM TYPES =====
-			var single = new RoomType
-			{
-				Name = "Single",
-				Beds = 1,
-				PricePerNight = 100
-			};
+                var doubleRoom = new RoomType
+                {
+                    Name = "Double",
+                    Beds = 2,
+                    PricePerNight = 250
+                };
 
-			var doubleRoom = new RoomType
-			{
-				Name = "Double",
-				Beds = 2,
-				PricePerNight = 150
-			};
+                context.RoomTypes.AddRange(single, doubleRoom);
+                await context.SaveChangesAsync();
+            }
 
-			var suite = new RoomType
-			{
-				Name = "Suite",
-				Beds = 3,
-				PricePerNight = 300
-			};
+            if (!context.Rooms.Any())
+            {
+                var singleType = context.RoomTypes.First(r => r.Name == "Single");
+                var doubleType = context.RoomTypes.First(r => r.Name == "Double");
 
-			context.RoomTypes.AddRange(single, doubleRoom, suite);
-			context.SaveChanges();
+                context.Rooms.AddRange(
+                    new Room { Number = "101", RoomTypeId = singleType.Id },
+                    new Room { Number = "102", RoomTypeId = singleType.Id },
+                    new Room { Number = "201", RoomTypeId = doubleType.Id }
+                );
 
-			// ===== ROOMS =====
-			context.Rooms.AddRange(
-				new Room { Number = "101", RoomTypeId = single.Id },
-				new Room { Number = "102", RoomTypeId = doubleRoom.Id },
-				new Room { Number = "201", RoomTypeId = suite.Id }
-			);
+                await context.SaveChangesAsync();
+            }
 
+            User testUser = await userManager.FindByEmailAsync("test@hotel.com");
 
-			context.SaveChanges();
-		}
-	}
+            if (testUser == null)
+            {
+                testUser = new User
+                {
+                    UserName = "test@hotel.com",
+                    Email = "test@hotel.com",
+                    Name = "Test User",
+                    EmailConfirmed = true
+                };
+
+                await userManager.CreateAsync(testUser, "Test123!");
+            }
+
+            if (!context.Reservations.Any())
+            {
+                var room = context.Rooms.First();
+
+                var reservation = new Reservation
+                {
+                    RoomId = room.Id,
+                    UserId = testUser.Id,
+                    StartDate = DateTime.Today.AddDays(1),
+                    EndDate = DateTime.Today.AddDays(4)
+                };
+
+                context.Reservations.Add(reservation);
+                await context.SaveChangesAsync();
+            }
+        }
+    }
 }
