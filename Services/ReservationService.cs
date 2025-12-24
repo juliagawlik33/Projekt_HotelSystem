@@ -1,5 +1,6 @@
 ﻿using HotelSystem.Data;
 using HotelSystem.Models;
+using HotelSystem.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 
@@ -38,10 +39,15 @@ namespace HotelSystem.Services
                 ))
                 .ToList();
         }
-        public List<Room> GetAllRooms()
+        public List<RoomSelectViewModel> GetSelectRooms()
         {
             return _context.Rooms
                 .Include(r => r.RoomType)
+                .Select(r => new RoomSelectViewModel
+                {
+                    Id = r.Id,
+                    DisplayName = $"Pokój {r.Number} - {r.RoomType.Name} ({r.RoomType.PricePerNight} zł/noc)"
+                })     
                 .ToList();
         }
 

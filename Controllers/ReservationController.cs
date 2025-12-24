@@ -35,12 +35,10 @@ namespace HotelSystem.Controllers
 
         public IActionResult Create(int roomId)
         {
-            var rooms = _reservationService.GetAllRooms();
+            var rooms = _reservationService.GetSelectRooms();
+              
         
-
-            ViewBag.Rooms = new SelectList(rooms, "Id", "Name");
-
-            ViewBag.Rooms = new SelectList(rooms, "Id", "Number");
+            ViewBag.Rooms = new SelectList(rooms, "Id", "DisplayName");
 
             return View(new CreateReservationViewModel
             {
@@ -54,7 +52,7 @@ namespace HotelSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Rooms = new SelectList(_reservationService.GetAllRooms(), "Id", "Number");
+                ViewBag.Rooms = new SelectList(_reservationService.GetSelectRooms(), "Id", "DisplayName", model.RoomId);
                 return View(model);
             }
 
