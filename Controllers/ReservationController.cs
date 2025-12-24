@@ -42,7 +42,9 @@ namespace HotelSystem.Controllers
 
             return View(new CreateReservationViewModel
             {
-                RoomId = roomId
+                RoomId = roomId,
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(3)
             });
         }
 
