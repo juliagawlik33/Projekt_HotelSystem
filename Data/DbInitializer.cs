@@ -49,6 +49,7 @@ namespace HotelSystem.Data
 
 			await context.SaveChangesAsync();
 
+
 			// ===== USERS =====
 			if (!await context.Users.AnyAsync())
 			{
@@ -57,10 +58,9 @@ namespace HotelSystem.Data
 					UserName = "test@example.com",
 					Email = "test@example.com",
 					Name = "Jan Kowalski",
-					EmailConfirmed = true 
+					EmailConfirmed = true
 				};
-
-				var result = await userManager.CreateAsync(testUser, "TestUser123!");
+				await userManager.CreateAsync(testUser, "TestUser123!");
 
 				var adminUser = new User
 				{
@@ -69,7 +69,6 @@ namespace HotelSystem.Data
 					Name = "Administrator",
 					EmailConfirmed = true
 				};
-
 				await userManager.CreateAsync(adminUser, "TestAdmin123!");
 			}
 		}
