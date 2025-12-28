@@ -17,6 +17,15 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+	var context = services.GetRequiredService<ApplicationDbContext>();
+	var userManager = services.GetRequiredService<UserManager<User>>();
+
+	await DbInitializer.InitializeAsync(context, userManager);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -33,18 +42,17 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 app.MapControllers();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {
@@ -55,4 +63,5 @@ using (var scope = app.Services.CreateScope())
 
     await DbInitializer.InitializeAsync(context, userManager);
 }
+app.MapRazorPages();
 app.Run();
