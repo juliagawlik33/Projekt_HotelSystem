@@ -1,0 +1,24 @@
+﻿@page
+@model ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirm e-mail";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+@if (Model.StatusMessage.Contains("successfully"))
+{
+    <div class="mt-4">
+        <p>You can now log in to your account.</p>
+        <a asp-page="./Login" class="btn btn-primary btn-lg">Log in now</a>
+    </div>
+}
+else
+{
+    <div class="mt-4">
+        <p>If you encounter problems, please try registering again.</p>
+        <a asp-page="./Login" class="btn btn-outline-secondary">Back to Login</a>
+    </div>
+}

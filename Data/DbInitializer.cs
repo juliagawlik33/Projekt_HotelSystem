@@ -1,16 +1,19 @@
 ﻿using HotelSystem.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelSystem.Data
 {
-    public class DbInitializer
-    {
-		public static void Initialize(ApplicationDbContext context)
+	public class DbInitializer
+	{
+		public static async Task InitializeAsync(ApplicationDbContext context, UserManager<User> userManager)
 		{
-			context.Database.Migrate();
+			await context.Database.MigrateAsync();
 
-			// jeśli są pokoje to seed już był
-			if (context.Rooms.Any()) return;
+			if (context.Rooms.Any())
+			{
+				return;
+			}
 
 			// ===== ROOM TYPES =====
 			var single = new RoomType
@@ -35,7 +38,7 @@ namespace HotelSystem.Data
 			};
 
 			context.RoomTypes.AddRange(single, doubleRoom, suite);
-			context.SaveChanges();
+			await context.SaveChangesAsync();
 
 			// ===== ROOMS =====
 			context.Rooms.AddRange(
@@ -44,8 +47,30 @@ namespace HotelSystem.Data
 				new Room { Number = "201", RoomTypeId = suite.Id }
 			);
 
+			await context.SaveChangesAsync();
 
-			context.SaveChanges();
+
+			// ===== USERS =====
+			if (!await context.Users.AnyAsync())
+			{
+				var testUser = new User
+				{
+					UserName = "test@example.com",
+					Email = "test@example.com",
+					Name = "Jan Kowalski",
+					EmailConfirmed = true
+				};
+				await userManager.CreateAsync(testUser, "TestUser123!");
+
+				var adminUser = new User
+				{
+					UserName = "admin@example.com",
+					Email = "admin@example.com",
+					Name = "Administrator",
+					EmailConfirmed = true
+				};
+				await userManager.CreateAsync(adminUser, "TestAdmin123!");
+			}
 		}
 	}
 }
