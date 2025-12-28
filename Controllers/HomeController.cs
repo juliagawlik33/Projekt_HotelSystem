@@ -8,7 +8,12 @@ namespace HotelSystem.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("MyReservations", "Reservation");
+            }
+
+            return RedirectToPage("/Account/Login", new { area = "Identity" });
         }
 
         public IActionResult Privacy()

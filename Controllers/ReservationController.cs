@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HotelSystem.Controllers
 {
-    //[Authorize] // Odkomentować na produkcji
+    [Authorize]
     public class ReservationController : Controller
     {
         private readonly ReservationService _reservationService;
@@ -25,10 +25,10 @@ namespace HotelSystem.Controllers
         public IActionResult MyReservations()
         {
             //Wersja testowa bo nie mam logowania
-            string userId = "570a3dbd-c0d0-4a04-8c8c-354908a247af";
+            //string userId = "2279b173-f80a-4b95-85fa-8c7cd18bddcf";
 
             //Wersja produkcyjna
-            //string userId = _userManager.GetUserId(User);
+            string userId = _userManager.GetUserId(User);
             var reservations = _reservationService.GetUserReservations(userId);
             return View(reservations);
         }
@@ -55,14 +55,15 @@ namespace HotelSystem.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Rooms = new SelectList(_reservationService.GetSelectRooms(), "Id", "DisplayName", model.RoomId);
+
                 return View(model);
             }
 
             //Wersja testowa bo nie mam logowania
-            string userId = "570a3dbd-c0d0-4a04-8c8c-354908a247af";
+            //string userId = "2279b173-f80a-4b95-85fa-8c7cd18bddcf";
 
             //Wersja produkcyjna
-            //string userId = _userManager.GetUserId(User);
+            string userId = _userManager.GetUserId(User);
 
             try
             {
@@ -75,7 +76,10 @@ namespace HotelSystem.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                ViewBag.Rooms = new SelectList(_reservationService.GetSelectRooms(), "Id", "DisplayName", model.RoomId);
+
                 return View(model);
             }
 
