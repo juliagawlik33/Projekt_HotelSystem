@@ -1,7 +1,7 @@
 ﻿@page
 @model ConfirmEmailModel
 @{
-    ViewData["Title"] = "Confirm e-mail";
+    ViewData["Title"] = "Potwierdź adres e-mail";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -11,14 +11,14 @@
 @if (Model.StatusMessage.Contains("successfully"))
 {
     <div class="mt-4">
-        <p>You can now log in to your account.</p>
-        <a asp-page="./Login" class="btn btn-primary btn-lg">Log in now</a>
+        <p>E-mail został potwierdzony. Możesz teraz zalogować się na konto.</p>
+        <a asp-page="./Login" class="btn btn-primary btn-lg">Zaloguj się</a>
     </div>
 }
 else
 {
     <div class="mt-4">
-        <p>If you encounter problems, please try registering again.</p>
-        <a asp-page="./Login" class="btn btn-outline-secondary">Back to Login</a>
+        <p>W razie wystąpienia problemów, spróbuj zarejestrować się ponownie.</p>
+        <a asp-page="./Login" class="btn btn-outline-secondary">Powróć do logowania</a>
     </div>
 }

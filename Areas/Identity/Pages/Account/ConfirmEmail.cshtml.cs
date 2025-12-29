@@ -45,7 +45,7 @@ namespace HotelSystem.Areas.Identity.Pages.Account
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
-            StatusMessage = result.Succeeded ? "Your e-mail has been successfully confirmed!" : "Error confirming your e-mail.";
+            StatusMessage = result.Succeeded ? "Twój e-mail został pomyślnie potwierdzony!" : "Wystąpił błąd podczas potwierdzania.";
             return Page();
         }
     }

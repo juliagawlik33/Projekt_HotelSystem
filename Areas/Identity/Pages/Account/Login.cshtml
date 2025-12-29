@@ -1,29 +1,30 @@
 ﻿@page
 @model LoginModel
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Zaloguj się";
 }
 
 <div class="container">
     <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white text-center">
-                    <h2 class="my-4 fw-bold">Welcome back. Log in to Your account.</h2>
+                <div class="card-header bg-primary text-white text-center py-5 rounded-top">
+                    <h1 class="display-5 fw-bold mb-1 text-white">Witaj ponownie.</h1>
+                    <p class="fs-4 mb-0 text-white opacity-90">Zaloguj się do swojego konta.</p>
                 </div>
                 <div class="card-body p-4">
                     <form id="account" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <div class="form-floating mb-3">
-                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="email@example.com" />
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="adres@przyklad.com" />
                             <label asp-for="Input.Email">E-mail</label>
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
-                            <label asp-for="Input.Password">Password</label>
+                            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Hasło" />
+                            <label asp-for="Input.Password">Hasło</label>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
@@ -35,15 +36,15 @@
                         </div>
 
                         <div class="d-grid">
-                            <button id="login-submit" type="submit" class="btn btn-primary btn-lg">Log in</button>
+                            <button id="login-submit" type="submit" class="btn btn-primary btn-lg">Zaloguj się</button>
                         </div>
 
                         <div class="text-center mt-4">
                             <p>
-                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                                <a id="forgot-password" asp-page="./ForgotPassword">Zapomniałeś hasła?</a>
                             </p>
                             <p>
-                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Zarejestruj się</a>
                             </p>
                         </div>
                     </form>
