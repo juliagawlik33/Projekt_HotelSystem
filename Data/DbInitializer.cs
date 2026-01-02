@@ -6,7 +6,7 @@ namespace HotelSystem.Data
 {
 	public class DbInitializer
 	{
-		public static async Task InitializeAsync(ApplicationDbContext context, UserManager<User> userManager)
+		public static async Task InitializeAsync(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
 		{
 			await context.Database.MigrateAsync();
 
@@ -55,22 +55,34 @@ namespace HotelSystem.Data
 			{
 				var testUser = new User
 				{
-					UserName = "test@example.com",
-					Email = "test@example.com",
-					Name = "Jan Kowalski",
+					UserName = "user@test.com",
+					Email = "user@test.com",
+					Name = "USER",
 					EmailConfirmed = true
 				};
 				await userManager.CreateAsync(testUser, "TestUser123!");
 
 				var adminUser = new User
 				{
-					UserName = "admin@example.com",
-					Email = "admin@example.com",
-					Name = "Administrator",
+					UserName = "admin@admin.com",
+					Email = "admin@admin.com",
+					Name = "ADMIN",
 					EmailConfirmed = true
 				};
 				await userManager.CreateAsync(adminUser, "TestAdmin123!");
 			}
+
+			// ===== ROLES =====
+			if (!await roleManager.RoleExistsAsync("Admin"))
+			{
+				await roleManager.CreateAsync(new IdentityRole("Admin"));
+			}
+			var admin = await userManager.FindByEmailAsync("admin@admin.com");
+			if (admin != null && !await userManager.IsInRoleAsync(admin, "Admin"))
+			{
+				await userManager.AddToRoleAsync(admin, "Admin");
+			}
+
 		}
 	}
 }

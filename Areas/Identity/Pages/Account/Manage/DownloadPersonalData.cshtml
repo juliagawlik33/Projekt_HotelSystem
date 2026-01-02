@@ -2,10 +2,24 @@
 @model DownloadPersonalDataModel
 @{
     ViewData["Title"] = "Pobierz swoje dane";
-    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+    ViewData["ActivePage"] = ManageNavPages.DownloadPersonalData;
 }
 
 <h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-3">
+        <partial name="_ManageNav" />
+    </div>
+    <div class="col-md-9">
+        <p>
+            Trwa przygotowywanie Twoich danych do pobrania...
+        </p>
+        <p>
+            Po zakończeniu przetwarzania plik zostanie automatycznie pobrany.
+        </p>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

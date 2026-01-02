@@ -1,0 +1,19 @@
+﻿@model HotelSystem.Models.ViewModels.EditReservationViewModel
+
+<h2>Edytuj rezerwację</h2>
+<form asp-action="EditReservation" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div>
+        <label asp-for="StartDate">Od:</label>
+        <input asp-for="StartDate" type="date" />
+    </div>
+    <div>
+        <label asp-for="EndDate">Do:</label>
+        <input asp-for="EndDate" type="date" />
+    </div>
+    <div>
+        <label asp-for="RoomId">Pokój:</label>
+        <select asp-for="RoomId" asp-items="ViewBag.Rooms"></select>
+    </div>
+    <button type="submit">Zapisz</button>
+</form>

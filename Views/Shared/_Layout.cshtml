@@ -37,6 +37,17 @@
                                     Nowa rezerwacja
                                 </a>
                             </li>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Admin"
+                                       asp-action="Reservations">
+                                        Panel Admina
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>

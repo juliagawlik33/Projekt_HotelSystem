@@ -1,0 +1,31 @@
+﻿@model List<HotelSystem.Models.Reservation>
+
+<h2>Wszystkie rezerwacje</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Użytkownik</th>
+            <th>Pokój</th>
+            <th>Od</th>
+            <th>Do</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var res in Model)
+        {
+            <tr>
+                <td>@res.Id</td>
+                <td>@res.User.Name (@res.User.Email)</td>
+                <td>@res.Room.Number (@res.Room.RoomType.Name, cena: @res.Room.RoomType.PricePerNight)</td>
+                <td>@res.StartDate.ToShortDateString()</td>
+                <td>@res.EndDate.ToShortDateString()</td>
+                <td>
+                    <a href="/Admin/EditReservation/@res.Id">Edytuj</a> |
+                    <a href="/Admin/DeleteReservation/@res.Id" onclick="return confirm('Usunąć?');">Usuń</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

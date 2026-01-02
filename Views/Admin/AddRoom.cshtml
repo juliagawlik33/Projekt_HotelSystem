@@ -1,0 +1,14 @@
+﻿@model HotelSystem.Models.Room
+
+<h2>Dodaj pokój</h2>
+<form asp-action="AddRoom" method="post">
+    <div>
+        <label asp-for="Number">Numer:</label>
+        <input asp-for="Number" />
+    </div>
+    <div>
+        <label asp-for="RoomTypeId">Typ:</label>
+        <select asp-for="RoomTypeId" asp-items="ViewBag.RoomTypes"></select>
+    </div>
+    <button type="submit">Dodaj</button>
+</form>
