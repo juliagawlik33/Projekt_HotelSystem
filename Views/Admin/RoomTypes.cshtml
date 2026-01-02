@@ -1,0 +1,24 @@
+﻿@model List<HotelSystem.Models.RoomType>
+
+<h2>Typy pokoi (edytuj ceny)</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nazwa</th>
+            <th>Łóżka</th>
+            <th>Cena/noc</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var type in Model)
+        {
+            <tr>
+                <td>@type.Name</td>
+                <td>@type.Beds</td>
+                <td>@type.PricePerNight</td>
+                <td><a href="/Admin/EditRoomType/@type.Id">Edytuj</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

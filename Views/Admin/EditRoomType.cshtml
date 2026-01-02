@@ -1,0 +1,19 @@
+﻿@model HotelSystem.Models.RoomType
+
+<h2>Edytuj typ pokoju</h2>
+<form asp-action="EditRoomType" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div>
+        <label asp-for="Name">Nazwa:</label>
+        <input asp-for="Name" readonly />
+    </div>
+    <div>
+        <label asp-for="Beds">Łóżka:</label>
+        <input asp-for="Beds" />
+    </div>
+    <div>
+        <label asp-for="PricePerNight">Cena/noc:</label>
+        <input asp-for="PricePerNight" type="number" step="0.01" />
+    </div>
+    <button type="submit">Zapisz</button>
+</form>
