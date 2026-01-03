@@ -18,7 +18,6 @@ namespace HotelSystem.Controllers
 			_context = context;
 		}
 
-		//wszystkie rezerwacje
 		public IActionResult Reservations()
 		{
 			var reservations = _context.Reservations
@@ -28,10 +27,15 @@ namespace HotelSystem.Controllers
 				.OrderBy(r => r.StartDate)
 				.ToList();
 
+			var rooms = _context.Rooms
+				.Include(r => r.RoomType)
+				.ToList();
+
+			ViewBag.Rooms = rooms;
+
 			return View(reservations);
 		}
 
-		//edycja rezerwacji - GET
 		[HttpGet]
 		public IActionResult EditReservation(int id)
 		{
@@ -54,7 +58,6 @@ namespace HotelSystem.Controllers
 			return View(model);
 		}
 
-		//edycja rezerwacji - POST
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public IActionResult EditReservation(EditReservationViewModel model)
@@ -77,8 +80,6 @@ namespace HotelSystem.Controllers
 			TempData["Success"] = "Rezerwacja zaktualizowana.";
 			return RedirectToAction("Reservations");
 		}
-
-		//usuwanie rezerwacji
 		public IActionResult DeleteReservation(int id)
 		{
 			var reservation = _context.Reservations.Find(id);
@@ -92,7 +93,6 @@ namespace HotelSystem.Controllers
 			return RedirectToAction("Reservations");
 		}
 
-		//lista pokoi i link do dodawania
 		public IActionResult Rooms()
 		{
 			var rooms = _context.Rooms
@@ -102,60 +102,94 @@ namespace HotelSystem.Controllers
 			return View(rooms);
 		}
 
-		//dodaj nowy pokój - GET
+
 		[HttpGet]
 		public IActionResult AddRoom()
 		{
 			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name");
-			return View();
+			return View(new EditRoomViewModel());
 		}
 
-		//dodaj nowy pokój - POST
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult AddRoom(Room room)
+		public IActionResult AddRoom(EditRoomViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
+				var room = new Room
+				{
+					Number = model.Number,
+					RoomTypeId = model.RoomTypeId
+				};
+
 				_context.Rooms.Add(room);
 				_context.SaveChanges();
-				TempData["Success"] = "Pokój dodany.";
-				return RedirectToAction("Rooms");
+
+				TempData["Success"] = "Pokój dodany pomyślnie.";
+				return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
 			}
 
-			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", room.RoomTypeId);
-			return View(room);
+			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			return View(model);
 		}
 
-		//lista typów pokoi
 		public IActionResult RoomTypes()
 		{
 			var types = _context.RoomTypes.ToList();
 			return View(types);
 		}
 
-		//edytuj cenę pokoju - GET
+
 		[HttpGet]
-		public IActionResult EditRoomType(int id)
+		public IActionResult EditRoom(int id)
 		{
-			var type = _context.RoomTypes.Find(id);
-			if (type == null) return NotFound();
-			return View(type);
+			var room = _context.Rooms.Find(id);
+			if (room == null) return NotFound();
+
+			var model = new EditRoomViewModel
+			{
+				Id = room.Id,
+				Number = room.Number,
+				RoomTypeId = room.RoomTypeId
+			};
+
+			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			return View(model);
 		}
 
-		//edytuj cenę pokoju - POST
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult EditRoomType(RoomType type)
+		public IActionResult EditRoom(EditRoomViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
-				_context.RoomTypes.Update(type);
+				var room = _context.Rooms.Find(model.Id);
+				if (room == null) return NotFound();
+
+				room.Number = model.Number;
+				room.RoomTypeId = model.RoomTypeId;
+
 				_context.SaveChanges();
-				TempData["Success"] = "Cena zaktualizowana.";
-				return RedirectToAction("RoomTypes");
+
+				TempData["Success"] = "Pokój zaktualizowany.";
+				return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
 			}
-			return View(type);
+
+			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			return View(model);
+		}
+
+
+		public IActionResult DeleteRoom(int id)
+		{
+			var room = _context.Rooms.Find(id);
+			if (room != null)
+			{
+				_context.Rooms.Remove(room);
+				_context.SaveChanges();
+				TempData["Success"] = "Pokój usunięty.";
+			}
+			return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
 		}
 	}
 }

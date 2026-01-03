@@ -49,34 +49,34 @@ namespace HotelSystem.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [DataType(DataType.Password)]
-            [Display(Name = "Current password")]
-            public string OldPassword { get; set; }
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[Required(ErrorMessage = "Pole {0} jest wymagane.")]
+			[DataType(DataType.Password)]
+			[Display(Name = "Aktualne hasło")]
+			public string OldPassword { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "New password")]
-            public string NewPassword { get; set; }
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[Required(ErrorMessage = "Pole {0} jest wymagane.")]
+			[StringLength(100, ErrorMessage = "{0} musi mieć co najmniej {2} i maksymalnie {1} znaków.", MinimumLength = 6)]
+			[DataType(DataType.Password)]
+			[Display(Name = "Nowe hasło")]
+			public string NewPassword { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm new password")]
-            [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-        }
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[DataType(DataType.Password)]
+			[Display(Name = "Potwierdź nowe hasło")]
+			[Compare("NewPassword", ErrorMessage = "Nowe hasło i potwierdzenie hasła nie są takie same.")]
+			public string ConfirmPassword { get; set; }
+		}
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -113,16 +113,22 @@ namespace HotelSystem.Areas.Identity.Pages.Account.Manage
             {
                 foreach (var error in changePasswordResult.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+					string translatedError = error.Code switch
+					{
+						"PasswordMismatch" => "Aktualne hasło jest nieprawidłowe.",
+						_ => error.Description
+					};
+
+					ModelState.AddModelError(string.Empty, translatedError);
+				}
                 return Page();
             }
 
-            await _signInManager.RefreshSignInAsync(user);
-            _logger.LogInformation("User changed their password successfully.");
-            StatusMessage = "Your password has been changed.";
+			await _signInManager.RefreshSignInAsync(user);
+			_logger.LogInformation("Użytkownik pomyślnie zmienił hasło.");
 
-            return RedirectToPage();
-        }
+			StatusMessage = "Twoje hasło zostało pomyślnie zmienione.";
+			return RedirectToPage();
+		}
     }
 }

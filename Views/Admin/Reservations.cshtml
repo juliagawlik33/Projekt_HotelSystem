@@ -1,31 +1,126 @@
 ﻿@model List<HotelSystem.Models.Reservation>
 
-<h2>Wszystkie rezerwacje</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Użytkownik</th>
-            <th>Pokój</th>
-            <th>Od</th>
-            <th>Do</th>
-            <th>Akcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var res in Model)
+@{
+    var rooms = ViewBag.Rooms as List<HotelSystem.Models.Room> ?? new List<HotelSystem.Models.Room>();
+}
+
+<h2 class="mb-4">Panel Administratora</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+<ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations" type="button" role="tab">
+            Rezerwacje gości
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms" type="button" role="tab">
+            Zarządzanie pokojami
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="adminTabContent">
+    <div class="tab-pane fade show active" id="reservations" role="tabpanel" aria-labelledby="reservations-tab">
+        <h3>Wszystkie rezerwacje</h3>
+        @if (!Model.Any())
         {
-            <tr>
-                <td>@res.Id</td>
-                <td>@res.User.Name (@res.User.Email)</td>
-                <td>@res.Room.Number (@res.Room.RoomType.Name, cena: @res.Room.RoomType.PricePerNight)</td>
-                <td>@res.StartDate.ToShortDateString()</td>
-                <td>@res.EndDate.ToShortDateString()</td>
-                <td>
-                    <a href="/Admin/EditReservation/@res.Id">Edytuj</a> |
-                    <a href="/Admin/DeleteReservation/@res.Id" onclick="return confirm('Usunąć?');">Usuń</a>
-                </td>
-            </tr>
+            <p>Brak rezerwacji.</p>
         }
-    </tbody>
-</table>
+        else
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Użytkownik</th>
+                        <th>Pokój</th>
+                        <th>Od</th>
+                        <th>Do</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var res in Model)
+                    {
+                        <tr>
+                            <td>@res.Id</td>
+                            <td>@res.User.Name (@res.User.Email)</td>
+                            <td>@res.Room.Number (@res.Room.RoomType.Name, cena: @res.Room.RoomType.PricePerNight zł)</td>
+                            <td>@res.StartDate.ToShortDateString()</td>
+                            <td>@res.EndDate.ToShortDateString()</td>
+                            <td>
+                                <a href="/Admin/EditReservation/@res.Id" class="btn btn-sm btn-primary">Edytuj</a>
+                                <a href="/Admin/DeleteReservation/@res.Id"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Czy na pewno usunąć rezerwację?');">Usuń</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="rooms" role="tabpanel" aria-labelledby="rooms-tab">
+        <h3>Pokoje w hotelu</h3>
+        <div class="mb-3">
+            <a asp-action="AddRoom" asp-controller="Admin" class="btn btn-success">Dodaj nowy pokój</a>
+        </div>
+        @if (!rooms.Any())
+        {
+            <p>Brak pokoi w bazie.</p>
+        }
+        else
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Numer pokoju</th>
+                        <th>Typ</th>
+                        <th>Cena za noc</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var room in rooms)
+                    {
+                        <tr>
+                            <td>@room.Number</td>
+                            <td>@room.RoomType.Name</td>
+                            <td>@room.RoomType.PricePerNight zł</td>
+                            <td>
+                                <a asp-action="EditRoom" asp-controller="Admin" asp-route-id="@room.Id"
+                                   class="btn btn-sm btn-primary">Edytuj</a>
+                                <a href="/Admin/DeleteRoom/@room.Id"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Czy na pewno usunąć pokój?');">Usuń</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hash = window.location.hash;
+
+            if (hash === "#rooms") {
+                const roomsTab = document.querySelector('#rooms-tab');
+                if (roomsTab) {
+                    const tab = new bootstrap.Tab(roomsTab);
+                    tab.show();
+                }
+            }
+        });
+    </script>
+}
