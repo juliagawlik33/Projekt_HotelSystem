@@ -11,6 +11,6 @@ namespace HotelSystem.Models.ViewModels
 
 		[Required(ErrorMessage = "Typ pokoju jest wymagany.")]
 		[Display(Name = "Typ pokoju")]
-		public int RoomTypeId { get; set; }
+		public int? RoomTypeId { get; set; }
 	}
 }

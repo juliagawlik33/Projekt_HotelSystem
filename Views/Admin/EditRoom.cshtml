@@ -5,8 +5,7 @@
 }
 
 <h2>Edytuj pokój</h2>
-<div asp-validation-summary="All" class="text-danger mb-3"></div>
-
+@* <div asp-validation-summary="All" class="text-danger mb-3"></div> *@
 <form asp-action="EditRoom" method="post">
     <input type="hidden" asp-for="Id" />
     <div class="form-group mb-3">
@@ -26,9 +25,3 @@
         <a href="@(Url.Action("Reservations", "Admin") + "#rooms")" class="btn btn-secondary">Anuluj</a>
     </div>
 </form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
