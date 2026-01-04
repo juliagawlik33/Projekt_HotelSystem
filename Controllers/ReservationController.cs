@@ -24,11 +24,16 @@ namespace HotelSystem.Controllers
 
         public IActionResult MyReservations()
         {
-            //Wersja testowa bo nie mam logowania
-            //string userId = "2279b173-f80a-4b95-85fa-8c7cd18bddcf";
+			if (User.IsInRole("Admin"))
+			{
+				return RedirectToAction("Reservations", "Admin");
+			}
 
-            //Wersja produkcyjna
-            string userId = _userManager.GetUserId(User);
+			//Wersja testowa bo nie mam logowania
+			//string userId = "2279b173-f80a-4b95-85fa-8c7cd18bddcf";
+
+			//Wersja produkcyjna
+			string userId = _userManager.GetUserId(User);
             var reservations = _reservationService.GetUserReservations(userId);
             return View(reservations);
         }

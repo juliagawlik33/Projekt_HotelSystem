@@ -4,7 +4,8 @@
     ViewData["Title"] = "Dodaj nowy pokój";
 }
 
-<div asp-validation-summary="All" class="text-danger mb-3"></div>
+<h2>Dodaj nowy pokój</h2>
+@* <div asp-validation-summary="All" class="text-danger mb-3"></div> *@
 <form asp-action="AddRoom" method="post">
     <div class="form-group mb-3">
         <label asp-for="Number" class="control-label"></label>
@@ -21,9 +22,3 @@
     <button type="submit" class="btn btn-primary">Dodaj pokój</button>
     <a href="@(Url.Action("Reservations", "Admin") + "#rooms")" class="btn btn-secondary">Anuluj</a>
 </form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HotelSystem.Data;
+using HotelSystem.Models;
+using HotelSystem.Models.ViewModels;
+using HotelSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using HotelSystem.Data;
-using HotelSystem.Models;
-using HotelSystem.Models.ViewModels;
 
 namespace HotelSystem.Controllers
 {
@@ -12,10 +13,12 @@ namespace HotelSystem.Controllers
 	public class AdminController : Controller
 	{
 		private readonly ApplicationDbContext _context;
+		private readonly ReservationService _reservationService;
 
-		public AdminController(ApplicationDbContext context)
+		public AdminController(ApplicationDbContext context, ReservationService reservationService)
 		{
 			_context = context;
+			_reservationService = reservationService;
 		}
 
 		public IActionResult Reservations()
@@ -71,9 +74,19 @@ namespace HotelSystem.Controllers
 			var reservation = _context.Reservations.Find(model.Id);
 			if (reservation == null) return NotFound();
 
-			reservation.StartDate = model.StartDate;
-			reservation.EndDate = model.EndDate;
-			reservation.RoomId = model.RoomId;
+			bool success = _reservationService.UpdateReservation(
+				model.Id,
+				model.RoomId,
+				model.StartDate,
+				model.EndDate
+			);
+
+			if (!success)
+			{
+				ModelState.AddModelError("RoomId", "Wybrany pokój jest już zajęty w podanym terminie.");
+				ViewBag.Rooms = new SelectList(_context.Rooms, "Id", "Number", model.RoomId);
+				return View(model);
+			}
 
 			_context.SaveChanges();
 
@@ -114,12 +127,20 @@ namespace HotelSystem.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult AddRoom(EditRoomViewModel model)
 		{
+			var existingRoom = _context.Rooms
+				.FirstOrDefault(r => r.Number == model.Number);
+
+			if (existingRoom != null)
+			{
+				ModelState.AddModelError("Number", "Pokój o podanym numerze już istnieje.");
+			}
+
 			if (ModelState.IsValid)
 			{
 				var room = new Room
 				{
 					Number = model.Number,
-					RoomTypeId = model.RoomTypeId
+					RoomTypeId = model.RoomTypeId.Value
 				};
 
 				_context.Rooms.Add(room);
@@ -161,13 +182,21 @@ namespace HotelSystem.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult EditRoom(EditRoomViewModel model)
 		{
+			var existingRoom = _context.Rooms
+				.FirstOrDefault(r => r.Number == model.Number && r.Id != model.Id);
+
+			if (existingRoom != null)
+			{
+				ModelState.AddModelError("Number", "Pokój o podanym numerze już istnieje.");
+			}
+
 			if (ModelState.IsValid)
 			{
 				var room = _context.Rooms.Find(model.Id);
 				if (room == null) return NotFound();
 
 				room.Number = model.Number;
-				room.RoomTypeId = model.RoomTypeId;
+				room.RoomTypeId = model.RoomTypeId.Value;
 
 				_context.SaveChanges();
 
@@ -190,6 +219,16 @@ namespace HotelSystem.Controllers
 				TempData["Success"] = "Pokój usunięty.";
 			}
 			return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
+		}
+
+		public JsonResult VerifyRoomNumber(string number, int id = 0)
+		{
+			if (string.IsNullOrWhiteSpace(number))
+				return Json(true);
+
+			var exists = _context.Rooms.Any(r => r.Number.Trim().ToLower() == number.Trim().ToLower() && r.Id != id);
+
+			return Json(!exists);
 		}
 	}
 }

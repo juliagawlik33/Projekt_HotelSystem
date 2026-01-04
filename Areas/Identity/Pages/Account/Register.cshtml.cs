@@ -89,7 +89,7 @@ namespace HotelSystem.Areas.Identity.Pages.Account
 			///     directly from your code. This API may change or be removed in future releases.
 			/// </summary>
 			[Required(ErrorMessage = "Pole Hasło jest wymagane.")]
-			[StringLength(100, ErrorMessage = "{0} musi mieć co najmniej {2} i maksymalnie {1} znaków.", MinimumLength = 6)]
+			[StringLength(100, ErrorMessage = "Hasło musi mieć od 6 do 100 znaków.", MinimumLength = 6)]
 			[DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }

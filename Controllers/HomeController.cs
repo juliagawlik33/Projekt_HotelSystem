@@ -10,9 +10,15 @@ namespace HotelSystem.Controllers
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("MyReservations", "Reservation");
-            }
-
+				if (User.IsInRole("Admin"))
+				{
+					return RedirectToAction("Reservations", "Admin");
+				}
+				else
+				{
+					return RedirectToAction("MyReservations", "Reservation");
+				}
+			}
             return RedirectToPage("/Account/Login", new { area = "Identity" });
         }
 
