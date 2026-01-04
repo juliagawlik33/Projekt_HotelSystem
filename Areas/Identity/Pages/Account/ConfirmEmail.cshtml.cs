@@ -40,13 +40,23 @@ namespace HotelSystem.Areas.Identity.Pages.Account
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{userId}'.");
+                return NotFound($"Nie można znaleźć użytkownika o ID '{userId}'.");
             }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            StatusMessage = result.Succeeded ? "Twój e-mail został pomyślnie potwierdzony!" : "Wystąpił błąd podczas potwierdzania.";
-            return Page();
-        }
+			var result = await _userManager.ConfirmEmailAsync(user, code);
+
+			if (result.Succeeded)
+			{
+				StatusMessage = "Dziękujemy za potwierdzenie adresu e-mail. Twoje konto jest teraz aktywne.";
+			}
+			else
+			{
+				var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+				StatusMessage = "Błąd podczas potwierdzania adresu e-mail: " + errors;
+			}
+
+			return Page();
+		}
     }
 }
