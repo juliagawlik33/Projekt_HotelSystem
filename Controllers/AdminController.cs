@@ -160,6 +160,44 @@ namespace HotelSystem.Controllers
 			return View(types);
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> RoomTypes(List<RoomType> roomTypes)
+		{
+			if (roomTypes == null || !roomTypes.Any())
+			{
+				return RedirectToAction("RoomTypes");
+			}
+
+			bool anyChanges = false;
+
+			foreach (var updatedType in roomTypes)
+			{
+				var existingType = await _context.RoomTypes
+					.FirstOrDefaultAsync(rt => rt.Id == updatedType.Id);
+
+				if (existingType != null)
+				{
+					if (updatedType.PricePerNight != existingType.PricePerNight)
+					{
+						existingType.PricePerNight = updatedType.PricePerNight;
+						anyChanges = true;
+					}
+				}
+			}
+
+			if (anyChanges)
+			{
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Ceny pokoi zostały zaktualizowane.";
+			}
+			else
+			{
+				TempData["Info"] = "Brak zmian do zapisania.";
+			}
+
+			return RedirectToAction("RoomTypes");
+		}
 
 		[HttpGet]
 		public IActionResult EditRoom(int id)

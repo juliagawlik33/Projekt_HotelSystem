@@ -1,0 +1,22 @@
+﻿@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Potwierdzenie rejestracji";
+}
+
+<div class="text-center mt-5">
+    <h1 class="display-6">Dziękujemy za rejestrację!</h1>
+    <p class="lead">
+        Na adres <strong>@Model.Email</strong> został wysłany link weryfikacyjny.
+        Sprawdź skrzynkę (również folder spam), aby aktywować konto.
+    </p>
+    @if (Model.DisplayConfirmAccountLink && Model.EmailConfirmationUrl != null)
+    {
+        <hr />
+        <p>
+            <a href="@Model.EmailConfirmationUrl" class="btn btn-success btn-lg">
+                Kliknij tutaj, aby potwierdzić konto
+            </a>
+        </p>
+    }
+</div>

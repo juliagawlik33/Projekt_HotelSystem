@@ -8,17 +8,17 @@
 
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
-@if (Model.StatusMessage.Contains("successfully"))
+@if (Model.StatusMessage.Contains("Dziękujemy za potwierdzenie", StringComparison.OrdinalIgnoreCase))
 {
-    <div class="mt-4">
-        <p>E-mail został potwierdzony. Możesz teraz zalogować się na konto.</p>
+    <div class="mt-4 text-center">
+        <p class="lead">Twoje konto jest teraz aktywne!</p>
         <a asp-page="./Login" class="btn btn-primary btn-lg">Zaloguj się</a>
     </div>
 }
 else
 {
-    <div class="mt-4">
-        <p>W razie wystąpienia problemów, spróbuj zarejestrować się ponownie.</p>
-        <a asp-page="./Login" class="btn btn-outline-secondary">Powróć do logowania</a>
+    <div class="mt-4 text-center">
+        <p class="text-danger">Wystąpił problem z potwierdzeniem konta.</p>
+        <a asp-page="./Register" class="btn btn-outline-secondary">Powróć do rejestracji</a>
     </div>
 }

@@ -14,35 +14,29 @@
                 <div class="card-body p-4">
                     <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="adres@przyklad.com" />
                             <label asp-for="Input.Email">E-mail</label>
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Name" class="form-control" autocomplete="off" aria-required="true" placeholder="Imię" />
                             <label asp-for="Input.Name">Imię</label>
                             <span asp-validation-for="Input.Name" class="text-danger"></span>
                         </div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Hasło" />
                             <label asp-for="Input.Password">Hasło</label>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Potwierdź hasło" />
                             <label asp-for="Input.ConfirmPassword">Potwierdź hasło</label>
                             <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                         </div>
-
                         <div class="d-grid">
                             <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg">Zarejestruj</button>
                         </div>
-
                         <div class="text-center mt-4">
                             <p>
                                 Posiadasz konto? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Zaloguj się</a>

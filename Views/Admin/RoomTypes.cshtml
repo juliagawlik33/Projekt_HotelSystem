@@ -1,24 +1,66 @@
 ﻿@model List<HotelSystem.Models.RoomType>
 
-<h2>Typy pokoi (edytuj ceny)</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nazwa</th>
-            <th>Łóżka</th>
-            <th>Cena/noc</th>
-            <th>Akcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var type in Model)
-        {
+@{
+    ViewData["Title"] = "Edytuj ceny pokoi";
+}
+
+<h2 class="mb-4">Edytuj ceny pokoi</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+        @TempData["Info"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+<form method="post" asp-action="RoomTypes">
+    @Html.AntiForgeryToken()
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@type.Name</td>
-                <td>@type.Beds</td>
-                <td>@type.PricePerNight</td>
-                <td><a href="/Admin/EditRoomType/@type.Id">Edytuj</a></td>
+                <th>Nazwa typu</th>
+                <th>Liczba łóżek</th>
+                <th>Cena za noc (zł)</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@Model[i].Name</td>
+                    <td>@Model[i].Beds</td>
+                    <td>
+                        <input type="number"
+                               name="[@i].PricePerNight"
+                               value="@Model[i].PricePerNight"
+                               class="form-control w-50"
+                               step="0.01"
+                               min="0"
+                               required />
+                        <input type="hidden" name="[@i].Id" value="@Model[i].Id" />
+                        <input type="hidden" name="[@i].Name" value="@Model[i].Name" />
+                        <input type="hidden" name="[@i].Beds" value="@Model[i].Beds" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success me-3">Zapisz zmiany</button>
+        <a href="@(Url.Action("Reservations", "Admin") + "#rooms")" class="btn btn-secondary">Wróć do listy pokoi</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info mt-4">
+        Nie zdefiniowano jeszcze żadnych typów pokoi.
+    </div>
+}

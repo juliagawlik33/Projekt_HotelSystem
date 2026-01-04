@@ -15,30 +15,25 @@
                 <div class="card-body p-4">
                     <form id="account" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="adres@przyklad.com" />
                             <label asp-for="Input.Email">E-mail</label>
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
-
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Hasło" />
                             <label asp-for="Input.Password">Hasło</label>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
-
                         <div class="form-check mb-3">
                             <input class="form-check-input" asp-for="Input.RememberMe" />
                             <label class="form-check-label" asp-for="Input.RememberMe">
                                 @Html.DisplayNameFor(m => m.Input.RememberMe)
                             </label>
                         </div>
-
                         <div class="d-grid">
                             <button id="login-submit" type="submit" class="btn btn-primary btn-lg">Zaloguj się</button>
                         </div>
-
                         <div class="text-center mt-4">
                             <p>
                                 <a id="forgot-password" asp-page="./ForgotPassword">Zapomniałeś hasła?</a>
