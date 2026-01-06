@@ -31,6 +31,7 @@ builder.Services.AddScoped<IEmailSender, EmptyEmailSender>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<AdminService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

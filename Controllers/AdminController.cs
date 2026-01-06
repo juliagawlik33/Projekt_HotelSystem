@@ -12,28 +12,19 @@ namespace HotelSystem.Controllers
 	[Authorize(Roles = "Admin")]
 	public class AdminController : Controller
 	{
-		private readonly ApplicationDbContext _context;
+		private readonly AdminService _adminService;
 		private readonly ReservationService _reservationService;
 
-		public AdminController(ApplicationDbContext context, ReservationService reservationService)
+		public AdminController(AdminService adminService, ReservationService reservationService)
 		{
-			_context = context;
+			_adminService = adminService;
 			_reservationService = reservationService;
 		}
 
 		public IActionResult Reservations()
 		{
-			var reservations = _context.Reservations
-				.Include(r => r.User)
-				.Include(r => r.Room)
-					.ThenInclude(room => room.RoomType)
-				.OrderBy(r => r.StartDate)
-				.ToList();
-
-			var rooms = _context.Rooms
-				.Include(r => r.RoomType)
-				.ToList();
-
+			var reservations = _reservationService.GetAdminReservations();
+			var rooms = _adminService.GetAllRooms();
 			ViewBag.Rooms = rooms;
 
 			return View(reservations);
@@ -42,13 +33,10 @@ namespace HotelSystem.Controllers
 		[HttpGet]
 		public IActionResult EditReservation(int id)
 		{
-			var reservation = _context.Reservations
-				.Include(r => r.Room)
-				.FirstOrDefault(r => r.Id == id);
-
+			var reservation = _reservationService.GetReservationById(id);
 			if (reservation == null) return NotFound();
 
-			ViewBag.Rooms = new SelectList(_context.Rooms, "Id", "Number", reservation.RoomId);
+			ViewBag.Rooms = new SelectList(_reservationService.GetAllRoomsForSelect(), "Id", "Number", reservation.RoomId);
 
 			var model = new EditReservationViewModel
 			{
@@ -67,12 +55,9 @@ namespace HotelSystem.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				ViewBag.Rooms = new SelectList(_context.Rooms, "Id", "Number", model.RoomId);
+				ViewBag.Rooms = new SelectList(_reservationService.GetAllRoomsForSelect(), "Id", "Number", model.RoomId);
 				return View(model);
 			}
-
-			var reservation = _context.Reservations.Find(model.Id);
-			if (reservation == null) return NotFound();
 
 			bool success = _reservationService.UpdateReservation(
 				model.Id,
@@ -84,42 +69,27 @@ namespace HotelSystem.Controllers
 			if (!success)
 			{
 				ModelState.AddModelError("RoomId", "Wybrany pokój jest już zajęty w podanym terminie.");
-				ViewBag.Rooms = new SelectList(_context.Rooms, "Id", "Number", model.RoomId);
+				ViewBag.Rooms = new SelectList(_reservationService.GetAllRoomsForSelect(), "Id", "Number", model.RoomId);
 				return View(model);
 			}
-
-			_context.SaveChanges();
 
 			TempData["Success"] = "Rezerwacja zaktualizowana.";
 			return RedirectToAction("Reservations");
 		}
 		public IActionResult DeleteReservation(int id)
 		{
-			var reservation = _context.Reservations.Find(id);
-			if (reservation != null)
+			if (_reservationService.DeleteReservationAdmin(id))
 			{
-				_context.Reservations.Remove(reservation);
-				_context.SaveChanges();
 				TempData["Success"] = "Rezerwacja usunięta.";
 			}
 
-			return RedirectToAction("Reservations");
+			return Redirect("/Admin/Reservations#rooms");
 		}
-
-		public IActionResult Rooms()
-		{
-			var rooms = _context.Rooms
-				.Include(r => r.RoomType)
-				.ToList();
-
-			return View(rooms);
-		}
-
 
 		[HttpGet]
 		public IActionResult AddRoom()
 		{
-			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name");
+			ViewBag.RoomTypes = new SelectList(_adminService.GetAllRoomTypes(), "Id", "Name");
 			return View(new EditRoomViewModel());
 		}
 
@@ -127,10 +97,7 @@ namespace HotelSystem.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult AddRoom(EditRoomViewModel model)
 		{
-			var existingRoom = _context.Rooms
-				.FirstOrDefault(r => r.Number == model.Number);
-
-			if (existingRoom != null)
+			if (!_adminService.IsRoomNumberUnique(model.Number))
 			{
 				ModelState.AddModelError("Number", "Pokój o podanym numerze już istnieje.");
 			}
@@ -143,20 +110,18 @@ namespace HotelSystem.Controllers
 					RoomTypeId = model.RoomTypeId.Value
 				};
 
-				_context.Rooms.Add(room);
-				_context.SaveChanges();
-
+				_adminService.AddRoom(room);
 				TempData["Success"] = "Pokój dodany pomyślnie.";
-				return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
+				return Redirect("/Admin/Reservations#rooms");
 			}
 
-			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			ViewBag.RoomTypes = new SelectList(_adminService.GetAllRoomTypes(), "Id", "Name", model.RoomTypeId);
 			return View(model);
 		}
 
 		public IActionResult RoomTypes()
 		{
-			var types = _context.RoomTypes.ToList();
+			var types = _adminService.GetAllRoomTypes();
 			return View(types);
 		}
 
@@ -169,26 +134,10 @@ namespace HotelSystem.Controllers
 				return RedirectToAction("RoomTypes");
 			}
 
-			bool anyChanges = false;
+			bool changed = await _adminService.UpdateRoomTypePrices(roomTypes);
 
-			foreach (var updatedType in roomTypes)
+			if (changed)
 			{
-				var existingType = await _context.RoomTypes
-					.FirstOrDefaultAsync(rt => rt.Id == updatedType.Id);
-
-				if (existingType != null)
-				{
-					if (updatedType.PricePerNight != existingType.PricePerNight)
-					{
-						existingType.PricePerNight = updatedType.PricePerNight;
-						anyChanges = true;
-					}
-				}
-			}
-
-			if (anyChanges)
-			{
-				await _context.SaveChangesAsync();
 				TempData["Success"] = "Ceny pokoi zostały zaktualizowane.";
 			}
 			else
@@ -202,7 +151,7 @@ namespace HotelSystem.Controllers
 		[HttpGet]
 		public IActionResult EditRoom(int id)
 		{
-			var room = _context.Rooms.Find(id);
+			var room = _adminService.GetRoomById(id);
 			if (room == null) return NotFound();
 
 			var model = new EditRoomViewModel
@@ -212,7 +161,7 @@ namespace HotelSystem.Controllers
 				RoomTypeId = room.RoomTypeId
 			};
 
-			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			ViewBag.RoomTypes = new SelectList(_adminService.GetAllRoomTypes(), "Id", "Name", model.RoomTypeId);
 			return View(model);
 		}
 
@@ -220,53 +169,43 @@ namespace HotelSystem.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult EditRoom(EditRoomViewModel model)
 		{
-			var existingRoom = _context.Rooms
-				.FirstOrDefault(r => r.Number == model.Number && r.Id != model.Id);
-
-			if (existingRoom != null)
+			if (!_adminService.IsRoomNumberUnique(model.Number, model.Id))
 			{
 				ModelState.AddModelError("Number", "Pokój o podanym numerze już istnieje.");
 			}
 
 			if (ModelState.IsValid)
 			{
-				var room = _context.Rooms.Find(model.Id);
+				var room = _adminService.GetRoomById(model.Id);
 				if (room == null) return NotFound();
 
 				room.Number = model.Number;
 				room.RoomTypeId = model.RoomTypeId.Value;
 
-				_context.SaveChanges();
+				if (_adminService.UpdateRoom(room))
+				{
+					TempData["Success"] = "Pokój zaktualizowany.";
+				}
 
-				TempData["Success"] = "Pokój zaktualizowany.";
-				return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
+				return Redirect("/Admin/Reservations#rooms");
 			}
 
-			ViewBag.RoomTypes = new SelectList(_context.RoomTypes, "Id", "Name", model.RoomTypeId);
+			ViewBag.RoomTypes = new SelectList(_adminService.GetAllRoomTypes(), "Id", "Name", model.RoomTypeId);
 			return View(model);
 		}
 
-
 		public IActionResult DeleteRoom(int id)
 		{
-			var room = _context.Rooms.Find(id);
-			if (room != null)
+			if (_adminService.DeleteRoom(id))
 			{
-				_context.Rooms.Remove(room);
-				_context.SaveChanges();
 				TempData["Success"] = "Pokój usunięty.";
 			}
-			return Redirect(Url.Action("Reservations", "Admin") + "#rooms");
+			return Redirect("/Admin/Reservations#rooms");
 		}
 
 		public JsonResult VerifyRoomNumber(string number, int id = 0)
 		{
-			if (string.IsNullOrWhiteSpace(number))
-				return Json(true);
-
-			var exists = _context.Rooms.Any(r => r.Number.Trim().ToLower() == number.Trim().ToLower() && r.Id != id);
-
-			return Json(!exists);
+			return Json(_adminService.IsRoomNumberUnique(number, id));
 		}
 	}
 }

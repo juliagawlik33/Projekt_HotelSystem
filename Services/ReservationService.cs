@@ -83,9 +83,8 @@ namespace HotelSystem.Services
                 .ToList();
         }
 
-
-        //Usuwanie rezerwacji
-        public void DeleteReservation (int reservationId)
+		//Usuwanie rezerwacji
+		public void DeleteReservation (int reservationId)
         {
             var reservation = _context.Reservations.Find(reservationId);
             if (reservation == null) return;
@@ -118,6 +117,42 @@ namespace HotelSystem.Services
             return true;
         }
 
-        
-    }
+		// Pobieranie rezerwacji przez admina
+		public List<Reservation> GetAdminReservations()
+		{
+			return _context.Reservations
+				.Include(r => r.User)
+				.Include(r => r.Room)
+					.ThenInclude(room => room.RoomType)
+				.OrderBy(r => r.StartDate)
+				.ToList();
+		}
+
+		// Pobieranie listy pokoi
+		public List<Room> GetAllRoomsForSelect()
+		{
+			return _context.Rooms
+				.Include(r => r.RoomType)
+				.ToList();
+		}
+
+		// Pobieranie pojedynczej rezerwacji
+		public Reservation? GetReservationById(int id)
+		{
+			return _context.Reservations
+				.Include(r => r.Room)
+				.FirstOrDefault(r => r.Id == id);
+		}
+
+		// Usuwanie rezerwacji dla admina
+		public bool DeleteReservationAdmin(int id)
+		{
+			var reservation = _context.Reservations.Find(id);
+			if (reservation == null) return false;
+
+			_context.Reservations.Remove(reservation);
+			_context.SaveChanges();
+			return true;
+		}
+	}
 }
